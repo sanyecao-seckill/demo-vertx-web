@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>后台-商品信息</title>
+    <style type="text/css">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        form{
+            width: 600px;
+            margin:20px auto;
+        }
+        form>fieldset{
+            padding: 10px;
+        }
+        form>fieldset>meter,
+        form>fieldset>input{
+            width: 100%;
+            height:40px;
+            line-height: 40px;
+            margin:10px auto;
+            border-radius: 4px;
+            font-size: 16px;
+            padding-left: 5px;
+            box-sizing: border-box;
+        }
+        form>fieldset>div{
+            width: 100%;
+            height:40px;
+            line-height: 40px;
+            margin:10px auto;
+            border-radius: 4px;
+            font-size: 16px;
+            padding-left: 5px;
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body>
+
+<div>
+    <form action=""  method="">
+
+        <legend style="font-color:blue">商品信息</legend><br/>
+        <label  id="productId">商品编号：</label><br/>
+        <label  id="productName">商品名称：</label><br/>
+        <label  id="productPrice">商品价格：</label><br/>
+        <label  id="tagStr">商品标识：</label><br/>
+
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+      var productId = getParameterByName('productId');
+      initData(productId);
+    });
+
+    function initData(productId){
+       $.post("/mock/productDescData",
+          {
+            'productId':productId
+          },
+          function(data,status){
+            if(!status){
+              alert("数据加载异常");
+              return;
+            }
+
+            $("#productId").append(data.productId);
+            $("#productName").append(data.productName);
+            $("#productPrice").append(data.productPrice);
+            $("#tagStr").append(data.tagStr);
+
+          },'json');
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+</script>
+</body>
+</html>

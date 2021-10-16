@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>填写订单</title>
+    <style type="text/css">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        form{
+            width: 600px;
+            margin:20px auto;
+        }
+        form>fieldset{
+            padding: 10px;
+        }
+        form>fieldset>meter,
+        form>fieldset>input{
+            width: 100%;
+            height:40px;
+            line-height: 40px;
+            margin:10px auto;
+            border-radius: 4px;
+            font-size: 16px;
+            padding-left: 5px;
+            box-sizing: border-box;
+        }
+        form>fieldset>div{
+            width: 100%;
+            height:40px;
+            line-height: 40px;
+            margin:10px auto;
+            border-radius: 4px;
+            font-size: 16px;
+            padding-left: 5px;
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body>
+
+<div>
+    <form action=""  method="">
+        <img border="1" src="/images/product.jpg"  width="600" height="500" id="productPictureUrl">
+        <p id="activityName">荣耀手机特价998，性价比高，最优的选择</p>
+        <br>
+        <p style="color:red;" id="mark">1件</p>
+        <br>
+
+        <fieldset>
+            <legend>结算信息</legend>
+
+            <div>
+            <label id="price">价格：</label>
+            </div>
+
+            <div>
+                <label for="buyNum">购买数量：</label>
+                <input type="number" name="buyNum" id="buyNum" value="1" maxlength="2" style="width:50px;;height:25px;">
+            </div>
+
+            <div>
+                <label >支付方式：</label>
+                <input type="radio" name="payType" value="1" checked="true"style="width:30px;">在线支付
+                <input type="radio" name="payType" value="2"style="width:30px;">货到付款
+            </div>
+
+            <div>
+                <label for="address">收货地址：</label>
+                <input type="text" name="address" id="address" placeholder="请输入收货地址" style="width:70%;height:25px;">
+            </div>
+
+            <div>
+                <label for="address" style="color:red;" id="totalPrice">总金额：</label>
+            </div>
+
+            <input type="button" name="" style="margin-top: 60px;color:blue;" onclick="submitOrder()" value="提交订单">
+
+            <input type="hidden" id="limitNum" value="1">
+            <input type="hidden" id="st" value="">
+        </fieldset>
+
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+      var productId = getParameterByName('productId');
+      var st = getParameterByName('st');
+      initData(productId,'1',st);
+    });
+
+    $("#buyNum").bind('input propertychange', function() {
+        var limitNum = $("#limitNum").val();
+        var buyNum = $(this).val();
+        if(buyNum == null || buyNum==''){
+          return;
+        }
+        if(buyNum>limitNum){
+          alert("限购"+limitNum+"件！")
+          $("#buyNum").val(limitNum);
+          return ;
+        }
+
+        var productId = getParameterByName('productId');
+        initData(productId,$("#buyNum").val());
+    });
+
+    function initData(productId,buyNum,st){
+       var url = "/settlement/initData?st="+st+"&productId="+productId
+       $.post(url,
+          {
+            'buyNum':buyNum
+          },
+          function(data,status,xhr){
+            if(!status){
+              alert("数据加载异常")
+              return;
+            }
+
+            $("#price").html('价格：'+data.productPrice);
+            $("#totalPrice").html('总金额：'+data.totalPrice);
+            $("#productPictureUrl").attr("src",data.productPictureUrl);
+            $("#address").val(data.address);
+            $("#activityName").html(data.activityName);
+            $("#limitNum").val(data.limitNum);
+            $("#mark").html('注意：本商品单次限购'+data.limitNum+'件');
+
+            $("#st").val(xhr.getResponseHeader('st'));
+
+          },'json');
+    }
+
+    function submitOrder(){
+      var productId = getParameterByName('productId');
+      var buyNum = $("#buyNum").val();
+      var address = $("#address").val();
+      var payType=$("[name='payType']").filter(":checked").attr("value");
+      $.post("/settlement/submitData?productId="+productId+"&st="+$("#st").val(),
+          {
+            'buyNum':buyNum,
+            'address':address,
+            'payType':payType
+          },
+          function(data,status){
+            if(!status){
+              alert("提单失败，请重新尝试");
+              return;
+            }
+            if('000000'!=data.code){
+              alert(data.message);
+              return;
+            }
+
+            window.location.href=data.payPageUrl;
+
+      },'json');
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+</script>
+</body>
+</html>
