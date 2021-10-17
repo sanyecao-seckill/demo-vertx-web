@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!--    默认单例，，加上scope="prototype"为多例-->
+  <bean name="vertxOptions" class="io.vertx.core.VertxOptions">
+    <property name="eventLoopPoolSize" value="1"/>
+    <property name="workerPoolSize" value="16"/>
+  </bean>
+
+  <bean name="deploymentOptions" class="io.vertx.core.DeploymentOptions">
+    <property name="instances" value="1"/>
+  </bean>
+
+</beans>
