@@ -22,18 +22,15 @@ public class InitialModule {
   Logger logger = LogManager.getLogger(InitialModule.class);
 
   /**
-   * 设置eventloop线程池大小
-   * info:建议设置cpu核数*2,但是最好需要小于等于verticle的实例数,
-   *     一个verticle实例会被分配到固定的一个线程中运行
-   *     一个eventloop线程，可以运行多个verticle实例
+   *
    * DependsOn :依赖 springContextHolder 先实例化完成，其 requestMappingContext才会有值
    */
   @Bean
   @DependsOn({"springContextHolder"})
   public DeploymentOptions deployVerticle(VertxOptions vertxOptions,DeploymentOptions deploymentOptions) {
-
+    //初始化Vertx
     Vertx vertx = Vertx.vertx(vertxOptions);
-
+    //部署实例
     vertx.deployVerticle(MainVerticle.class.getName(), deploymentOptions, stringAsyncResult -> {
       if(stringAsyncResult.succeeded()){
         logger.info("MainVerticle is deployed success!");
@@ -41,7 +38,6 @@ public class InitialModule {
         logger.error("MainVerticle is deployed Fail.. :"+stringAsyncResult.cause().toString());
       }
     });
-
     return deploymentOptions;
   }
 

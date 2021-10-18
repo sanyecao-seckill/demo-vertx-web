@@ -7,8 +7,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import vertx.core.router.RouterHelper;
-import vertx.handler.Test3Handler;
-import vertx.handler.Test4Handler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,36 +16,33 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2021/10/13
  */
 public class MainVerticle extends AbstractVerticle {
-  /**
-   * @param startPromise
-   * @throws Exception
-   */
   @Override
   public void start(Promise<Void> startPromise) {
     //创建router
     Router router = Router.router(vertx);
 
-    //给router配置通用handler
+    //1.给router配置通用handler
     configCommonHandler(router);
 
-    //配置router-业务URL与处理方法
+    //2.配置router-业务URL与处理方法
     new RouterHelper(router).configRouter();
 
-    //静态资源配置，设置启用缓存
+    //3.静态资源配置，设置启用缓存
     StaticHandler staticHandler = StaticHandler.create().setCachingEnabled(true);
     staticHandler.setWebRoot("demo-vertx-gateway/src/main/resources");
 
-    // 静态HTML，正则匹配
+    //3.1 静态HTML，正则匹配
     router.routeWithRegex(".*\\.html").blockingHandler(staticHandler, false);
 
-    // 静态JPG，正则匹配（静态资源上到CDN后，则不再需要相关配置）
+    //3.2 静态JPG，正则匹配（静态资源上到CDN后，则不再需要相关配置）
     router.routeWithRegex(".*\\.jpg").blockingHandler(staticHandler, false);
 
-    //设置连接超时时间（保持长连接）
+    //4.设置Http服务配置
     HttpServerOptions serverOptions = new HttpServerOptions();
+    //连接超时时间（保持长连接）
     serverOptions.setIdleTimeout(20000).setIdleTimeoutUnit(TimeUnit.MILLISECONDS);
 
-    //启动服务，监听端口8007
+    //5.启动服务，设置监听端口号
     vertx.createHttpServer().requestHandler(router).listen(8080, http -> {
       if (http.succeeded()) {
         startPromise.complete();
