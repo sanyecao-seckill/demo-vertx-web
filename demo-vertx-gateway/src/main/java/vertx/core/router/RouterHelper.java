@@ -56,7 +56,7 @@ public class RouterHelper {
     //需要注册的完整url
     String url = mainPathUrl + subPath.value();
     logger.info("Register Mapping Url is:"+url);
-    //将url与对应的目标方法注册到router中
+    //将url与对应的目标方法注册到router中（并且设置同一个Verticle实例下的handler可以并发执行，true则是按顺序执行）
     router.route(url).blockingHandler(context -> {
       //1.添加监控
       //2.添加限流
@@ -74,7 +74,7 @@ public class RouterHelper {
         //6.结束监控
         //7.其他操作
       }
-    }, true);
+    }, false);
 
   }
 
