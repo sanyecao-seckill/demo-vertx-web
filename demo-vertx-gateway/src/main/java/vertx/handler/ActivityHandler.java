@@ -9,9 +9,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import vertx.cache.ILocalCache;
 import vertx.core.annotation.RequestMapping;
 import vertx.model.ActivityDetailDTO;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 @Component
@@ -20,6 +22,9 @@ public class ActivityHandler {
 
     @Autowired
     ActivityExportService activityExportService;
+
+    @Resource(name = "activityLocalCache")
+    ILocalCache iLocalCache;
 
     Logger logger = LogManager.getLogger(ActivityHandler.class);
 
@@ -52,14 +57,13 @@ public class ActivityHandler {
 
         logger.info("productId:"+productId);
 
-        ActivityDetailDTO detailDTO = new ActivityDetailDTO();
 
-        //标识  1：正常商品，2：秒杀商品 3：预约商品
-        Result<SeckillActivityDTO> activityDTOResult = activityExportService.queryActivity(productId);
-        if(activityDTOResult == null || activityDTOResult.getData() == null){
+        SeckillActivityDTO activityDTO = (SeckillActivityDTO)iLocalCache.get(productId);
+        if(activityDTO == null){
             return null;
         }
-        SeckillActivityDTO activityDTO = activityDTOResult.getData();
+
+        ActivityDetailDTO detailDTO = new ActivityDetailDTO();
         detailDTO.setProductPrice(activityDTO.getActivityPrice().toPlainString());
         detailDTO.setProductPictureUrl(activityDTO.getActivityPictureUrl());
         detailDTO.setProductName(activityDTO.getActivityName());

@@ -74,6 +74,13 @@
         <version>1.2.32</version>
       </dependency>
 
+      <!-- guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>30.1.1-jre</version>
+      </dependency>
+
       <dependency>
         <groupId>com.demo</groupId>
         <artifactId>demo-support-export</artifactId>
