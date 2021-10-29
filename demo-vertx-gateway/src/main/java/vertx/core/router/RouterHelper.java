@@ -65,7 +65,7 @@ public class RouterHelper {
         //4.调用对应业务方法
         Object obj = doInvoke(context,handler,method);
         //5.1 正常响应结果
-        responseNormal(context,obj,subPath.rt());
+        responseNormal(context,obj,subPath.rt(),subPath.async());
       } catch (Exception e) {
         logger.error("invoke target method exception :"+url,e);
         //5.2 异常响应结果
@@ -101,7 +101,11 @@ public class RouterHelper {
     throw new BizException("目标方法的入参，有暂不支持的类型，请做调整");
   }
 
-  private void responseNormal(RoutingContext context,Object responseData, ResponseType rt) throws BizException {
+  private void responseNormal(RoutingContext context,Object responseData, ResponseType rt,boolean async) throws BizException {
+    //如果是异步结果，则不同步返回
+    if(async){
+      return;
+    }
     //返回类型-json
     if(ResponseType.JSON == rt){
       context.response()

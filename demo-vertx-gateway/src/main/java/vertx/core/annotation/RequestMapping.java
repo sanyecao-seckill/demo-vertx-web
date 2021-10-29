@@ -26,4 +26,9 @@ public @interface RequestMapping {
      * See Also ResponseType.JSON ResponseType.HTML
      */
     ResponseType rt() default ResponseType.JSON;
+
+    /**
+     * 是否异步
+     */
+    boolean async() default false;
 }
