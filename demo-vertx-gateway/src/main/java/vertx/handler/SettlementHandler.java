@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import vertx.core.annotation.RequestMapping;
 import vertx.exception.BizException;
+import vertx.limit.RateLimiterComponent;
 import vertx.model.SettlementInitDTO;
 import vertx.model.SettlementSubmitDTO;
 import vertx.service.SettlementService;
@@ -19,6 +20,9 @@ public class SettlementHandler {
 
     @Autowired
     SettlementService settlementService;
+
+    @Autowired
+    RateLimiterComponent rateLimiterComponent;
 
     Logger logger = LogManager.getLogger(SettlementHandler.class);
 
@@ -32,6 +36,11 @@ public class SettlementHandler {
         String buyNum = request.getParam("buyNum");
 
         logger.info("结算页初始化入参productId:"+productId+" ;buyNum="+buyNum);
+
+        //判断是否被限流
+        if(rateLimiterComponent.isLimitedByInit()){
+            return null;
+        }
 
         SettlementInitDTO initDTO = null;
         try {
@@ -51,6 +60,12 @@ public class SettlementHandler {
      */
     @RequestMapping("/dependency")
     public String dependency() {
+        //判断是否被限流
+        if(rateLimiterComponent.isLimitedByInit()){
+            logger.info("我被限流了！");
+            return "sss";
+        }
+        logger.info("我通过了！");
         return "create seckill activity fail!";
     }
 
@@ -60,6 +75,11 @@ public class SettlementHandler {
      */
     @RequestMapping("/submitData")
     public SettlementSubmitDTO submitData(HttpServerRequest request){
+
+        //判断是否被限流
+        if(rateLimiterComponent.isLimitedBySubmit()){
+            return null;
+        }
 
         SettlementOrderDTO submitDTO = new SettlementOrderDTO();
 
